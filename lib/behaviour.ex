@@ -33,6 +33,8 @@ defmodule FingerTree.Behaviour do
   @callback last(this :: finger_tree(any())) :: finger(any())
   @callback append(this :: finger_tree(any()), other :: finger_tree(any())) :: finger_tree(any())
   @callback prepend(this :: finger_tree(any()), other :: finger_tree(any())) :: finger_tree(any())
+  @callback split(this :: finger_tree(any()), splitter :: (any() -> boolean())) ::
+              {:ok, finger_tree(any()), finger_tree(any()), finger_tree(any())} | {:error, any()}
 end
 
 defmodule FingerTree.Measured do

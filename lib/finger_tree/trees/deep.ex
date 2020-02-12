@@ -204,6 +204,14 @@ defmodule FingerTree.Deep do
   def prepend(%__MODULE__{} = this, %_single_or_empty{} = other),
     do: FingerTree.append(other, this)
 
+  @impl FingerTree.Behaviour
+  def split(%FingerTree.Deep{} = this, splitter) when is_function(splitter, 1) do
+    # if splitter.(measure),
+    #   do: {:ok, FingerTree.new!(FingerTree.Empty), FingerTree.new!(FingerTree.Empty)},
+    #   else: {:error, :not_found}
+    {:error, :not_found}
+  end
+
   defp fold(%__MODULE__{} = port, %__MODULE__{} = starboard) do
     flist = port.contents.right.contents ++ starboard.contents.left.contents
 

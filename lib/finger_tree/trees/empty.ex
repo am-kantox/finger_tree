@@ -4,24 +4,27 @@ defmodule FingerTree.Empty do
   use FingerTree
 
   @impl FingerTree.Measured
-  def measure(%__MODULE__{}), do: []
+  def measure(%FingerTree.Empty{}), do: []
 
   @impl FingerTree.Behaviour
-  def empty?(%__MODULE__{}), do: true
+  def empty?(%FingerTree.Empty{}), do: true
 
   @impl FingerTree.Behaviour
-  def push(%__MODULE__{}, e), do: FingerTree.new!(FingerTree.Single, e)
+  def push(%FingerTree.Empty{}, e), do: FingerTree.new!(FingerTree.Single, e)
 
   @impl FingerTree.Behaviour
-  def unshift(%__MODULE__{}, e), do: FingerTree.new!(FingerTree.Single, e)
+  def unshift(%FingerTree.Empty{}, e), do: FingerTree.new!(FingerTree.Single, e)
 
   Enum.each([Empty, Single, Deep], fn mod ->
     mod = Module.concat(FingerTree, mod)
 
     @impl FingerTree.Behaviour
-    def append(%__MODULE__{}, %unquote(mod){} = t), do: t
+    def append(%FingerTree.Empty{}, %unquote(mod){} = t), do: t
 
     @impl FingerTree.Behaviour
-    def prepend(%__MODULE__{}, %unquote(mod){} = t), do: t
+    def prepend(%FingerTree.Empty{}, %unquote(mod){} = t), do: t
   end)
+
+  @impl FingerTree.Behaviour
+  def split(%FingerTree.Empty{}, _splitter), do: {:error, :empty}
 end

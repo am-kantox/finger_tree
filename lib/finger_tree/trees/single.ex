@@ -4,19 +4,19 @@ defmodule FingerTree.Single do
   use FingerTree
 
   @impl FingerTree.Measured
-  def measure(%__MODULE__{contents: contents}), do: FingerTree.measure(contents)
+  def measure(%FingerTree.Single{contents: contents}), do: FingerTree.measure(contents)
 
   @impl FingerTree.Behaviour
-  def empty?(%__MODULE__{}), do: false
+  def empty?(%FingerTree.Single{}), do: false
 
   @impl FingerTree.Behaviour
-  def first(%__MODULE__{contents: contents}), do: contents
+  def first(%FingerTree.Single{contents: contents}), do: contents
 
   @impl FingerTree.Behaviour
-  def last(%__MODULE__{contents: contents}), do: contents
+  def last(%FingerTree.Single{contents: contents}), do: contents
 
   @impl FingerTree.Behaviour
-  def push(%__MODULE__{contents: contents}, e),
+  def push(%FingerTree.Single{contents: contents}, e),
     do:
       FingerTree.new!(FingerTree.Deep, %{
         left: FingerTree.Digit.collect(contents),
@@ -25,7 +25,7 @@ defmodule FingerTree.Single do
       })
 
   @impl FingerTree.Behaviour
-  def unshift(%__MODULE__{contents: contents}, e),
+  def unshift(%FingerTree.Single{contents: contents}, e),
     do:
       FingerTree.new!(FingerTree.Deep, %{
         left: FingerTree.Digit.collect(e),
@@ -34,16 +34,24 @@ defmodule FingerTree.Single do
       })
 
   @impl FingerTree.Behaviour
-  def pop(%__MODULE__{}), do: FingerTree.new!(FingerTree.Empty)
+  def pop(%FingerTree.Single{}), do: FingerTree.new!(FingerTree.Empty)
 
   @impl FingerTree.Behaviour
-  def shift(%__MODULE__{}), do: FingerTree.new!(FingerTree.Empty)
+  def shift(%FingerTree.Single{}), do: FingerTree.new!(FingerTree.Empty)
 
   @impl FingerTree.Behaviour
-  def append(%__MODULE__{contents: contents}, %type{} = other),
+  def append(%FingerTree.Single{contents: contents}, %type{} = other),
     do: type.unshift(other, contents)
 
   @impl FingerTree.Behaviour
-  def prepend(%__MODULE__{contents: contents}, %type{} = other),
+  def prepend(%FingerTree.Single{contents: contents}, %type{} = other),
     do: type.push(other, contents)
+
+  @impl FingerTree.Behaviour
+  def split(%FingerTree.Single{measure: measure} = this, splitter)
+      when is_function(splitter, 1) do
+    if splitter.(measure),
+      do: {:ok, FingerTree.new!(FingerTree.Empty), this, FingerTree.new!(FingerTree.Empty)},
+      else: {:error, :not_found}
+  end
 end
