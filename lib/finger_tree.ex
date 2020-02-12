@@ -2,6 +2,8 @@ defmodule FingerTree do
   @moduledoc """
   Documentation for `FingerTree`.
 
+  Implementation is based on http://www.staff.city.ac.uk/~ross/papers/FingerTree.pdf
+
   http://www.staff.city.ac.uk/~ross/papers/FingerTree.html
   """
 

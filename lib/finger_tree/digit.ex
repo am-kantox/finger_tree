@@ -3,7 +3,7 @@ defmodule FingerTree.Digit do
 
   @type t :: %{
           __struct__: FingerTree.Digit,
-          contents: list()
+          contents: [FingerTree.Node.t()]
         }
 
   defstruct contents: []
@@ -72,29 +72,13 @@ defmodule FingerTree.Digit do
   def prepend(%__MODULE__{contents: [e1, e2, e3]} = this, e),
     do: %__MODULE__{this | contents: [e, e1, e2, e3]}
 
-  @spec collect(t :: [FingerTree.finger_tree(any())]) :: t()
-  def collect(t) when is_list(t), do: %FingerTree.Digit{contents: t}
-
-  @spec collect(t1 :: FingerTree.finger_tree(any())) :: t()
-  def collect(t1), do: %FingerTree.Digit{contents: [t1]}
-
-  @spec collect(t1 :: FingerTree.finger_tree(any()), t2 :: FingerTree.finger_tree(any())) :: t()
-  def collect(t1, t2), do: %FingerTree.Digit{contents: [t1, t2]}
-
   @spec collect(
-          t1 :: FingerTree.finger_tree(any()),
-          t2 :: FingerTree.finger_tree(any()),
-          t3 :: FingerTree.finger_tree(any())
+          t :: FingerTree.Behaviour.finger_tree(any()) | [FingerTree.Behaviour.finger_tree(any())]
         ) :: t()
-  def collect(t1, t2, t3), do: %FingerTree.Digit{contents: [t1, t2, t3]}
+  def collect(t) when not is_list(t), do: collect([t])
 
-  @spec collect(
-          t1 :: FingerTree.finger_tree(any()),
-          t2 :: FingerTree.finger_tree(any()),
-          t3 :: FingerTree.finger_tree(any()),
-          t4 :: FingerTree.finger_tree(any())
-        ) :: t()
-  def collect(t1, t2, t3, t4), do: %FingerTree.Digit{contents: [t1, t2, t3, t4]}
+  def collect([_ | _] = t) when is_list(t) and length(t) <= 4,
+    do: %FingerTree.Digit{contents: t}
 
   unless Application.get_env(:finger_tree, :standard_inspect, true) do
     defimpl Inspect do

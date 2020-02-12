@@ -6,17 +6,18 @@ defmodule FingerTree.Behaviour do
   """
 
   @type finger_tree_type ::
-          FingerTree.Empty | FingerTree.Single | FingerTree.Deep | FingerTree.Node
-  @type finger(type) :: %{
-          :__struct__ => FingerTree.Type,
-          type: type,
-          value: any()
-        }
+          FingerTree.Empty | FingerTree.Single | FingerTree.Deep
+  @type finger(type) :: type
   @type finger_tree(type) :: %{
           :__struct__ => finger_tree_type(),
-          type: type,
-          digit: integer(),
-          value: any()
+          contents:
+            []
+            | FingerTree.Node.t()
+            | %{
+                left: FingerTree.Digit.t(),
+                spine: finger_tree(type),
+                right: FingerTree.Digit.t()
+              }
         }
 
   @callback type :: finger(any())

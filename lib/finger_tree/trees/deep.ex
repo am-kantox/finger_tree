@@ -64,7 +64,7 @@ defmodule FingerTree.Deep do
           | contents: %{
               contents
               | spine: FingerTree.push(spine, node),
-                right: FingerTree.Digit.collect(e3, e)
+                right: FingerTree.Digit.collect([e3, e])
             }
         }
 
@@ -84,7 +84,7 @@ defmodule FingerTree.Deep do
           | contents: %{
               contents
               | spine: FingerTree.unshift(spine, node),
-                left: FingerTree.Digit.collect(e, e0)
+                left: FingerTree.Digit.collect([e, e0])
             }
         }
 
@@ -108,8 +108,8 @@ defmodule FingerTree.Deep do
       this
       | contents: %{
           contents
-          | left: FingerTree.Digit.collect(l1, l2),
-            right: FingerTree.Digit.collect(l3, l4)
+          | left: FingerTree.Digit.collect([l1, l2]),
+            right: FingerTree.Digit.collect([l3, l4])
         }
     }
 
@@ -148,8 +148,8 @@ defmodule FingerTree.Deep do
       this
       | contents: %{
           contents
-          | left: FingerTree.Digit.collect(r1, r2),
-            right: FingerTree.Digit.collect(r3, r4)
+          | left: FingerTree.Digit.collect([r1, r2]),
+            right: FingerTree.Digit.collect([r3, r4])
         }
     }
 
