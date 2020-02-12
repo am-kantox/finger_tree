@@ -7,47 +7,47 @@ defmodule FingerTreeTest do
   setup_all do
     %{
       tree_fwd_push:
-        Enum.reduce(97..122, %FingerTree.Empty{}, fn x, acc -> FingerTree.push(acc, x) end),
+        Enum.reduce(?a..?z, %FingerTree.Empty{}, fn x, acc -> FingerTree.push(acc, x) end),
       tree_bwd_push:
-        Enum.reduce(122..97, %FingerTree.Empty{}, fn x, acc -> FingerTree.push(acc, x) end),
+        Enum.reduce(?z..?a, %FingerTree.Empty{}, fn x, acc -> FingerTree.push(acc, x) end),
       tree_fwd_unsh:
-        Enum.reduce(97..122, %FingerTree.Empty{}, fn x, acc -> FingerTree.unshift(acc, x) end),
+        Enum.reduce(?a..?z, %FingerTree.Empty{}, fn x, acc -> FingerTree.unshift(acc, x) end),
       tree_bwd_unsh:
-        Enum.reduce(122..97, %FingerTree.Empty{}, fn x, acc -> FingerTree.unshift(acc, x) end)
+        Enum.reduce(?z..?a, %FingerTree.Empty{}, fn x, acc -> FingerTree.unshift(acc, x) end)
     }
   end
 
   test "push/2 + pop/1", ctx do
-    assert Enum.map_reduce(97..122, ctx.tree_fwd_push, fn _, acc ->
+    assert Enum.map_reduce(?a..?z, ctx.tree_fwd_push, fn _, acc ->
              {FingerTree.first(acc), FingerTree.pop(acc)}
-           end) == {Enum.to_list(122..97), @empty}
+           end) == {Enum.to_list(?z..?a), @empty}
   end
 
   test "push/2 + shift/1", ctx do
-    assert Enum.map_reduce(97..122, ctx.tree_fwd_push, fn _, acc ->
+    assert Enum.map_reduce(?a..?z, ctx.tree_fwd_push, fn _, acc ->
              {FingerTree.last(acc), FingerTree.shift(acc)}
-           end) == {Enum.to_list(97..122), @empty}
+           end) == {Enum.to_list(?a..?z), @empty}
   end
 
   test "unshift/2 + pop/1", ctx do
-    assert Enum.map_reduce(97..122, ctx.tree_fwd_unsh, fn _, acc ->
+    assert Enum.map_reduce(?a..?z, ctx.tree_fwd_unsh, fn _, acc ->
              {FingerTree.first(acc), FingerTree.pop(acc)}
-           end) == {Enum.to_list(97..122), @empty}
+           end) == {Enum.to_list(?a..?z), @empty}
   end
 
   test "unshift/2 + shift/1", ctx do
-    assert Enum.map_reduce(97..122, ctx.tree_fwd_unsh, fn _, acc ->
+    assert Enum.map_reduce(?a..?z, ctx.tree_fwd_unsh, fn _, acc ->
              {FingerTree.last(acc), FingerTree.shift(acc)}
-           end) == {Enum.to_list(122..97), @empty}
+           end) == {Enum.to_list(?z..?a), @empty}
   end
 
   test "append/2", ctx do
     double = FingerTree.append(ctx.tree_fwd_push, ctx.tree_fwd_push)
 
-    assert Enum.map_reduce(97..(122 + 26), double, fn _, acc ->
+    assert Enum.map_reduce(?a..(?z + 26), double, fn _, acc ->
              {FingerTree.last(acc), FingerTree.shift(acc)}
            end) ==
-             {97..122 |> Enum.to_list() |> List.duplicate(2) |> Enum.reduce(&Kernel.++/2), @empty}
+             {?a..?z |> Enum.to_list() |> List.duplicate(2) |> Enum.reduce(&Kernel.++/2), @empty}
   end
 
   test "prepend/2", ctx do
@@ -57,12 +57,12 @@ defmodule FingerTreeTest do
     assert a == p
 
     {'abcdefghijklmnopqrstuvwxyz', bwd} =
-      Enum.map_reduce(97..122, a, fn _, acc ->
+      Enum.map_reduce(?a..?z, a, fn _, acc ->
         {FingerTree.first(acc), FingerTree.pop(acc)}
       end)
 
     assert {'abcdefghijklmnopqrstuvwxyz', @empty} =
-             Enum.map_reduce(97..122, bwd, fn _, acc ->
+             Enum.map_reduce(?a..?z, bwd, fn _, acc ->
                {FingerTree.last(acc), FingerTree.shift(acc)}
              end)
   end

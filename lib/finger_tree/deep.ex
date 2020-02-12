@@ -1,7 +1,6 @@
 defmodule FingerTree.Deep do
-  @moduledoc """
+  @moduledoc false
 
-  """
   use FingerTree
 
   defmacrop deep(clauses, vars \\ []) do

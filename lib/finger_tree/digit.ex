@@ -3,16 +3,8 @@ defmodule FingerTree.Digit do
 
   @type t :: %{
           __struct__: FingerTree.Digit,
-          contents: []
+          contents: list()
         }
-
-  @spec to_tuple(t()) :: tuple()
-  def to_tuple(%__MODULE__{contents: [e0]}), do: {e0}
-  def to_tuple(%__MODULE__{contents: [e0, e1]}), do: {e0, e1}
-  def to_tuple(%__MODULE__{contents: [e0, e1, e2]}), do: {e0, e1, e2}
-  def to_tuple(%__MODULE__{contents: [e0, e1, e2, e3]}), do: {e0, e1, e2, e3}
-
-  # def to_tuple(%__MODULE__{contents: contents}), do: List.to_tuple(contents)
 
   @spec empty?(t()) :: boolean()
   def empty?(%__MODULE__{contents: []}), do: true
