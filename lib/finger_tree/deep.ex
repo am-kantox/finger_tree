@@ -175,25 +175,31 @@ defmodule FingerTree.Deep do
     }
 
   @impl FingerTree.Behaviour
-  def append(
-        %__MODULE__{
-          contents: contents
-        } = this,
-        %FingerTree.Deep{
-          contents: contents
-        } = other
-      ),
-      do: %FingerTree.Deep{other | contents: %{contents | spine: fold(this, other)}}
+  def append(%__MODULE__{} = this, %FingerTree.Deep{} = other),
+    do: %FingerTree.Deep{
+      other
+      | contents: %{other.contents | left: this.contents.left, spine: fold(this, other)}
+    }
 
   def append(%__MODULE__{} = this, %_single_or_empty{} = other),
     do: FingerTree.prepend(other, this)
 
-  defp fold(%__MODULE__{} = port, %__MODULE__{} = starboard) do
-    flist = port.right.content ++ starboard.left.content
+  @impl FingerTree.Behaviour
+  def prepend(%__MODULE__{} = this, %FingerTree.Deep{} = other),
+    do: %FingerTree.Deep{
+      other
+      | contents: %{other.contents | left: this.contents.left, spine: fold(this, other)}
+    }
 
-    port.spine
+  def prepend(%__MODULE__{} = this, %_single_or_empty{} = other),
+    do: FingerTree.append(other, this)
+
+  defp fold(%__MODULE__{} = port, %__MODULE__{} = starboard) do
+    flist = port.contents.right.contents ++ starboard.contents.left.contents
+
+    port.contents.spine
     |> do_fold(0, length(flist), flist)
-    |> FingerTree.append(starboard.spine)
+    |> FingerTree.append(starboard.contents.spine)
   end
 
   defp do_fold(spine, seen, all, _fist) when seen >= all, do: spine
@@ -218,16 +224,16 @@ defmodule FingerTree.Deep do
         contents: [Enum.at(fist, seen + 2), Enum.at(fist, seen + 3)]
       })
 
-    do_fold(seen + 4, all, fist, spine)
+    do_fold(spine, seen + 4, all, fist)
   end
 
-  defp do_fold(seen, all, fist, spine) do
+  defp do_fold(spine, seen, all, fist) do
     spine =
       spine
       |> FingerTree.push(%FingerTree.Node{
         contents: [Enum.at(fist, seen), Enum.at(fist, seen + 1), Enum.at(fist, seen + 2)]
       })
 
-    do_fold(seen + 3, all, fist, spine)
+    do_fold(spine, seen + 3, all, fist)
   end
 end

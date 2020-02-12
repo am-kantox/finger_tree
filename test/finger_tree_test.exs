@@ -40,4 +40,13 @@ defmodule FingerTreeTest do
              {FingerTree.last(acc), FingerTree.shift(acc)}
            end) == {Enum.to_list(122..97), @empty}
   end
+
+  test "append/1", ctx do
+    double = FingerTree.append(ctx.tree_fwd_push, ctx.tree_fwd_push)
+
+    assert Enum.map_reduce(97..(122 + 26), double, fn _, acc ->
+             {FingerTree.last(acc), FingerTree.shift(acc)}
+           end) ==
+             {97..122 |> Enum.to_list() |> List.duplicate(2) |> Enum.reduce(&Kernel.++/2), @empty}
+  end
 end
