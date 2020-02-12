@@ -1,4 +1,6 @@
 defmodule FingerTree.Node do
+  @moduledoc false
+
   use FingerTree
 
   @impl FingerTree.Behaviour
@@ -19,8 +21,4 @@ defmodule FingerTree.Node do
   @impl FingerTree.Behaviour
   def shift(%__MODULE__{contents: [n1, n2, n3]} = node),
     do: {n3, %__MODULE__{node | contents: [n1, n2]}}
-
-  @spec to_digit(t()) :: FingerTree.Digit.t()
-  def to_digit(%__MODULE__{contents: contents}),
-    do: FingerTree.Digit.collect(contents)
 end

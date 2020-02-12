@@ -5,6 +5,8 @@ defmodule FingerTree.IllegalOperation do
 
   defexception [:tree, :operation, :data, :message]
 
+  @doc false
+  @impl Exception
   def exception(opts) do
     message = "This operation (#{opts[:operation]}) is illegal for (#{inspect(opts[:tree])})."
 

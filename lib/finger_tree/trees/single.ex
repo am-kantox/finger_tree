@@ -1,4 +1,6 @@
 defmodule FingerTree.Single do
+  @moduledoc false
+
   use FingerTree
 
   @impl FingerTree.Behaviour
