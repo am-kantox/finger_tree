@@ -4,34 +4,42 @@ defmodule FingerTree.Deep do
   """
   use FingerTree
 
-  defmacrop deep(clauses \\ [:left, :right, :spine]) do
+  defmacrop deep(clauses, vars \\ []) do
     clauses =
       for clause <- clauses do
         case clause do
-          :spine ->
-            quote do: {unquote(clause), unquote(Macro.var(clause, nil))}
+          :empty_spine ->
+            quote do: {:spine, %FingerTree.Empty{}}
 
-          [clause, contents] ->
+          :spine ->
+            spine = vars |> Keyword.get(:spine, :spine) |> Macro.var(nil)
+            quote do: {:spine, unquote(spine)}
+
+          [clause, contents] when clause in [:left, :right] ->
+            var = vars |> Keyword.get(clause, clause) |> Macro.var(nil)
+
             quote do
-              {unquote(clause),
-               %FingerTree.Digit{contents: unquote(contents)} = unquote(Macro.var(clause, nil))}
+              {unquote(clause), %FingerTree.Digit{contents: unquote(contents)} = unquote(var)}
             end
 
-          clause ->
-            quote do: {unquote(clause), %FingerTree.Digit{} = unquote(Macro.var(clause, nil))}
+          clause when clause in [:left, :right] ->
+            var = vars |> Keyword.get(clause, clause) |> Macro.var(nil)
+            quote do: {unquote(clause), %FingerTree.Digit{} = unquote(var)}
         end
       end
 
     aliases = __MODULE__ |> Module.split() |> Enum.map(&String.to_atom/1)
+    contents = Keyword.get(vars, :contents, :contents)
+    this = Keyword.get(vars, :this, :this)
 
     {:=, [],
      [
        {:%, [],
         [
           {:__aliases__, [alias: false], aliases},
-          {:%{}, [], [contents: {:=, [], [{:%{}, [], clauses}, {:contents, [], nil}]}]}
+          {:%{}, [], [contents: {:=, [], [{:%{}, [], clauses}, {contents, [], nil}]}]}
         ]},
-       {:this, [], nil}
+       {this, [], nil}
      ]}
   end
 
@@ -93,121 +101,78 @@ defmodule FingerTree.Deep do
       | contents: %{contents | right: FingerTree.Digit.all_but_last(right)}
     }
 
-  def pop(%__MODULE__{
-        contents: %{left: %FingerTree.Digit{contents: [l]}, spine: %FingerTree.Empty{}}
-      }),
-      do: %FingerTree.Single{contents: l}
+  def pop(deep([[:left, [l]], :empty_spine], left: :_, contents: :_, this: :_)),
+    do: %FingerTree.Single{contents: l}
 
-  def pop(
-        %__MODULE__{
-          contents:
-            %{
-              left: %FingerTree.Digit{contents: [l1, l2, l3, l4]},
-              spine: %FingerTree.Empty{}
-            } = contents
-        } = this
-      ),
-      do: %FingerTree.Deep{
-        this
-        | contents: %{
-            contents
-            | left: FingerTree.Digit.collect(l1, l2),
-              right: FingerTree.Digit.collect(l3, l4)
-          }
-      }
+  def pop(deep([[:left, [l1, l2, l3, l4]], :empty_spine], left: :_)),
+    do: %FingerTree.Deep{
+      this
+      | contents: %{
+          contents
+          | left: FingerTree.Digit.collect(l1, l2),
+            right: FingerTree.Digit.collect(l3, l4)
+        }
+    }
 
-  def pop(
-        %__MODULE__{
-          contents:
-            %{left: %FingerTree.Digit{contents: [lh | lt]}, spine: %FingerTree.Empty{}} = contents
-        } = this
-      ),
-      do: %FingerTree.Deep{
-        this
-        | contents: %{
-            contents
-            | left: FingerTree.Digit.collect(lh),
-              right: FingerTree.Digit.collect(lt)
-          }
-      }
+  def pop(deep([[:left, [lh | lt]], :empty_spine], left: :_)),
+    do: %FingerTree.Deep{
+      this
+      | contents: %{
+          contents
+          | left: FingerTree.Digit.collect(lh),
+            right: FingerTree.Digit.collect(lt)
+        }
+    }
 
-  def pop(
-        %__MODULE__{
-          contents: %{spine: %_single_or_deep{} = spine} = contents
-        } = this
-      ),
-      do: %FingerTree.Deep{
-        this
-        | contents: %{
-            contents
-            | spine: FingerTree.pop(spine),
-              right: FingerTree.Digit.collect(FingerTree.first(spine).contents)
-          }
-      }
+  def pop(deep([:spine])),
+    do: %FingerTree.Deep{
+      this
+      | contents: %{
+          contents
+          | spine: FingerTree.pop(spine),
+            right: FingerTree.Digit.collect(FingerTree.first(spine).contents)
+        }
+    }
 
   @impl FingerTree.Behaviour
-  def shift(
-        %__MODULE__{
-          contents: %{left: %FingerTree.Digit{contents: [_, _ | _]} = left} = contents
-        } = this
-      ),
-      do: %FingerTree.Deep{
-        this
-        | contents: %{contents | left: FingerTree.Digit.all_but_first(left)}
-      }
+  def shift(deep([[:left, [_, _ | _]]])),
+    do: %FingerTree.Deep{
+      this
+      | contents: %{contents | left: FingerTree.Digit.all_but_first(left)}
+    }
 
-  def shift(%__MODULE__{
-        contents: %{right: %FingerTree.Digit{contents: [r]}, spine: %FingerTree.Empty{}}
-      }),
-      do: %FingerTree.Single{contents: r}
+  def shift(deep([[:right, [r]], :empty_spine], right: :_, contents: :_, this: :_)),
+    do: %FingerTree.Single{contents: r}
 
-  def shift(
-        %__MODULE__{
-          contents:
-            %{
-              right: %FingerTree.Digit{contents: [r1, r2, r3, r4]},
-              spine: %FingerTree.Empty{}
-            } = contents
-        } = this
-      ),
-      do: %FingerTree.Deep{
-        this
-        | contents: %{
-            contents
-            | left: FingerTree.Digit.collect(r1, r2),
-              right: FingerTree.Digit.collect(r3, r4)
-          }
-      }
+  def shift(deep([[:right, [r1, r2, r3, r4]], :empty_spine], right: :_)),
+    do: %FingerTree.Deep{
+      this
+      | contents: %{
+          contents
+          | left: FingerTree.Digit.collect(r1, r2),
+            right: FingerTree.Digit.collect(r3, r4)
+        }
+    }
 
-  def shift(
-        %__MODULE__{
-          contents:
-            %{right: %FingerTree.Digit{contents: [rh | rt]}, spine: %FingerTree.Empty{}} =
-              contents
-        } = this
-      ),
-      do: %FingerTree.Deep{
-        this
-        | contents: %{
-            contents
-            | left: FingerTree.Digit.collect(rh),
-              right: FingerTree.Digit.collect(rt)
-          }
-      }
+  def shift(deep([[:right, [rh | rt]], :empty_spine], right: :_)),
+    do: %FingerTree.Deep{
+      this
+      | contents: %{
+          contents
+          | left: FingerTree.Digit.collect(rh),
+            right: FingerTree.Digit.collect(rt)
+        }
+    }
 
-  def shift(
-        %__MODULE__{
-          contents: %{spine: %_single_or_deep{} = spine} = contents
-        } = this
-      ),
-      do: %FingerTree.Deep{
-        this
-        | contents: %{
-            contents
-            | spine: FingerTree.shift(spine),
-              left: FingerTree.Digit.collect(FingerTree.last(spine).contents)
-          }
-      }
+  def shift(deep([:spine])),
+    do: %FingerTree.Deep{
+      this
+      | contents: %{
+          contents
+          | spine: FingerTree.shift(spine),
+            left: FingerTree.Digit.collect(FingerTree.last(spine).contents)
+        }
+    }
 
   @impl FingerTree.Behaviour
   def append(
