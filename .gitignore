@@ -25,3 +25,5 @@ franz-*.tar
 /.elixir_ls/
 
 /.dialyzer/plts/*.plt*
+
+/bench/snapshots/

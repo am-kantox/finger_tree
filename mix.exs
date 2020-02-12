@@ -36,6 +36,7 @@ defmodule FingerTree.MixProject do
   defp deps do
     [
       # test / dev / ci
+      {:benchfella, "~> 0.3"},
       {:dialyxir, "~> 1.0.0-rc.6", only: [:ci, :dev], runtime: false},
       {:credo, "~> 1.0", only: [:ci, :dev, :test], runtime: false},
       {:stream_data, "~> 0.4", only: [:ci, :test], runtime: false},
