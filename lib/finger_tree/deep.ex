@@ -187,8 +187,8 @@ defmodule FingerTree.Deep do
   @impl FingerTree.Behaviour
   def prepend(%__MODULE__{} = this, %FingerTree.Deep{} = other),
     do: %FingerTree.Deep{
-      other
-      | contents: %{other.contents | left: this.contents.left, spine: fold(this, other)}
+      this
+      | contents: %{this.contents | left: other.contents.left, spine: fold(other, this)}
     }
 
   def prepend(%__MODULE__{} = this, %_single_or_empty{} = other),
