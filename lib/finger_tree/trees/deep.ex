@@ -207,7 +207,7 @@ defmodule FingerTree.Deep do
     spine =
       spine
       |> FingerTree.push(%FingerTree.Node{
-        contents: [Enum.at(fist, seen), Enum.at(fist, seen + 1)]
+        contents: [list_at(fist, seen), list_at(fist, seen + 1)]
       })
 
     do_fold(spine, seen + 2, all, fist)
@@ -217,10 +217,10 @@ defmodule FingerTree.Deep do
     spine =
       spine
       |> FingerTree.push(%FingerTree.Node{
-        contents: [Enum.at(fist, seen), Enum.at(fist, seen + 1)]
+        contents: [list_at(fist, seen), list_at(fist, seen + 1)]
       })
       |> FingerTree.push(%FingerTree.Node{
-        contents: [Enum.at(fist, seen + 2), Enum.at(fist, seen + 3)]
+        contents: [list_at(fist, seen + 2), list_at(fist, seen + 3)]
       })
 
     do_fold(spine, seen + 4, all, fist)
@@ -230,9 +230,19 @@ defmodule FingerTree.Deep do
     spine =
       spine
       |> FingerTree.push(%FingerTree.Node{
-        contents: [Enum.at(fist, seen), Enum.at(fist, seen + 1), Enum.at(fist, seen + 2)]
+        contents: [list_at(fist, seen), list_at(fist, seen + 1), list_at(fist, seen + 2)]
       })
 
     do_fold(spine, seen + 3, all, fist)
   end
+
+  @spec list_at(list :: [FingerTree.Behaviour.finger(any())], pos :: non_neg_integer()) :: any()
+  defp list_at([e | _], 0), do: e
+  defp list_at([_, e | _], 1), do: e
+  defp list_at([_, _, e | _], 2), do: e
+  defp list_at([_, _, _, e | _], 3), do: e
+  defp list_at([_, _, _, _, e | _], 4), do: e
+  defp list_at([_, _, _, _, _, e | _], 5), do: e
+  defp list_at([_, _, _, _, _, _, e | _], 6), do: e
+  defp list_at([_, _, _, _, _, _, _, e | _], 7), do: e
 end

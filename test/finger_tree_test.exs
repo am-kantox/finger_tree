@@ -9,21 +9,16 @@ defmodule FingerTreeTest do
 
   setup_all do
     %{
-      tree_fwd_push:
-        Enum.reduce(@range, %FingerTree.Empty{}, fn x, acc -> FingerTree.push(acc, x) end),
-      tree_bwd_push:
-        Enum.reduce(@inversed_range, %FingerTree.Empty{}, fn x, acc -> FingerTree.push(acc, x) end),
-      tree_fwd_unsh:
-        Enum.reduce(@range, %FingerTree.Empty{}, fn x, acc -> FingerTree.unshift(acc, x) end),
+      tree_fwd_push: Enum.reduce(@range, %FingerTree.Empty{}, &FingerTree.push(&2, &1)),
+      tree_bwd_push: Enum.reduce(@inversed_range, %FingerTree.Empty{}, &FingerTree.push(&2, &1)),
+      tree_fwd_unsh: Enum.reduce(@range, %FingerTree.Empty{}, &FingerTree.unshift(&2, &1)),
       tree_bwd_unsh:
-        Enum.reduce(@inversed_range, %FingerTree.Empty{}, fn x, acc ->
-          FingerTree.unshift(acc, x)
-        end)
+        Enum.reduce(@inversed_range, %FingerTree.Empty{}, &FingerTree.unshift(&2, &1))
     }
   end
 
   test "huge tree → push/2 + pop/1" do
-    huge_range = ?a..(10_000 + ?a)
+    huge_range = ?a..(1_000 + ?a)
 
     tree_huge =
       Enum.reduce(huge_range, %FingerTree.Empty{}, fn x, acc ->
