@@ -1,9 +1,17 @@
 defmodule FingerTree.Node do
   @moduledoc false
 
-  @type t :: %{
+  @behaviour FingerTree.Measured
+
+  @type t(type) :: %{
           __struct__: FingerTree.Node,
-          contents: [FingerTree.Behaviour.finger(any())]
+          measure: any(),
+          contents: [FingerTree.Behaviour.finger(type)]
         }
-  defstruct contents: []
+
+  defstruct measure: [], contents: []
+
+  @impl FingerTree.Measured
+  def measure(%__MODULE__{contents: contents}),
+    do: Enum.flat_map(contents, &FingerTree.measure/1)
 end

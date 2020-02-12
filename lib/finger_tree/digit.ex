@@ -1,84 +1,91 @@
 defmodule FingerTree.Digit do
   @moduledoc false
 
-  @type t :: %{
+  @behaviour FingerTree.Measured
+
+  @type t(type) :: %{
           __struct__: FingerTree.Digit,
-          contents: [FingerTree.Node.t()]
+          measure: any(),
+          contents: [type | FingerTree.Node.t(type)]
         }
 
-  defstruct contents: []
+  defstruct measure: [], contents: []
 
-  @spec empty?(t()) :: boolean()
-  def empty?(%__MODULE__{contents: []}), do: true
-  def empty?(%__MODULE__{}), do: false
+  @impl FingerTree.Measured
+  def measure(%FingerTree.Digit{contents: contents}),
+    do: Enum.flat_map(contents, &FingerTree.measure/1)
 
-  @spec first(t()) :: any()
-  def first(%__MODULE__{contents: [e | _]}), do: e
+  @spec empty?(t(any())) :: boolean()
+  def empty?(%FingerTree.Digit{contents: []}), do: true
+  def empty?(%FingerTree.Digit{}), do: false
 
-  @spec last(t()) :: any()
-  def last(%__MODULE__{contents: [e]}), do: e
-  def last(%__MODULE__{contents: [_, e]}), do: e
-  def last(%__MODULE__{contents: [_, _, e]}), do: e
-  def last(%__MODULE__{contents: [_, _, _, e]}), do: e
+  @spec first(t(any())) :: any()
+  def first(%FingerTree.Digit{contents: [e | _]}), do: e
 
-  @spec all_but_first(t()) :: t()
-  def all_but_first(%__MODULE__{contents: contents} = this) do
+  @spec last(t(any())) :: any()
+  def last(%FingerTree.Digit{contents: [e]}), do: e
+  def last(%FingerTree.Digit{contents: [_, e]}), do: e
+  def last(%FingerTree.Digit{contents: [_, _, e]}), do: e
+  def last(%FingerTree.Digit{contents: [_, _, _, e]}), do: e
+
+  @spec all_but_first(t(any())) :: t(any())
+  def all_but_first(%FingerTree.Digit{contents: contents} = this) do
     [_ | rest] = contents
-    %__MODULE__{this | contents: rest}
+    %FingerTree.Digit{this | contents: rest}
   end
 
-  @spec all_but_last(t()) :: t()
-  def all_but_last(%__MODULE__{contents: [_]} = this),
-    do: %__MODULE__{this | contents: []}
+  @spec all_but_last(t(any())) :: t(any())
+  def all_but_last(%FingerTree.Digit{contents: [_]} = this),
+    do: %FingerTree.Digit{this | contents: []}
 
-  def all_but_last(%__MODULE__{contents: [e, _]} = this),
-    do: %__MODULE__{this | contents: [e]}
+  def all_but_last(%FingerTree.Digit{contents: [e, _]} = this),
+    do: %FingerTree.Digit{this | contents: [e]}
 
-  def all_but_last(%__MODULE__{contents: [e1, e2, _]} = this),
-    do: %__MODULE__{this | contents: [e1, e2]}
+  def all_but_last(%FingerTree.Digit{contents: [e1, e2, _]} = this),
+    do: %FingerTree.Digit{this | contents: [e1, e2]}
 
-  def all_but_last(%__MODULE__{contents: [e1, e2, e3, _]} = this),
-    do: %__MODULE__{this | contents: [e1, e2, e3]}
+  def all_but_last(%FingerTree.Digit{contents: [e1, e2, e3, _]} = this),
+    do: %FingerTree.Digit{this | contents: [e1, e2, e3]}
 
-  @spec get(t(), index :: non_neg_integer()) :: any()
-  def get(%__MODULE__{contents: [e | _]}, 0), do: e
-  def get(%__MODULE__{contents: [_, e | _]}, 1), do: e
-  def get(%__MODULE__{contents: [_, _, e | _]}, 2), do: e
-  def get(%__MODULE__{contents: [_, _, _, e | _]}, 3), do: e
+  @spec get(t(any()), index :: non_neg_integer()) :: any()
+  def get(%FingerTree.Digit{contents: [e | _]}, 0), do: e
+  def get(%FingerTree.Digit{contents: [_, e | _]}, 1), do: e
+  def get(%FingerTree.Digit{contents: [_, _, e | _]}, 2), do: e
+  def get(%FingerTree.Digit{contents: [_, _, _, e | _]}, 3), do: e
 
-  @spec append(t(), e :: any()) :: t()
-  def append(%__MODULE__{contents: []} = this, e),
-    do: %__MODULE__{this | contents: [e]}
+  @spec append(t(any()), e :: any()) :: t(any())
+  def append(%FingerTree.Digit{contents: []}, e),
+    do: FingerTree.new!(FingerTree.Digit, [e])
 
-  def append(%__MODULE__{contents: [e1]} = this, e),
-    do: %__MODULE__{this | contents: [e1, e]}
+  def append(%FingerTree.Digit{contents: [e1]}, e),
+    do: FingerTree.new!(FingerTree.Digit, [e1, e])
 
-  def append(%__MODULE__{contents: [e1, e2]} = this, e),
-    do: %__MODULE__{this | contents: [e1, e2, e]}
+  def append(%FingerTree.Digit{contents: [e1, e2]}, e),
+    do: FingerTree.new!(FingerTree.Digit, [e1, e2, e])
 
-  def append(%__MODULE__{contents: [e1, e2, e3]} = this, e),
-    do: %__MODULE__{this | contents: [e1, e2, e3, e]}
+  def append(%FingerTree.Digit{contents: [e1, e2, e3]}, e),
+    do: FingerTree.new!(FingerTree.Digit, [e1, e2, e3, e])
 
-  @spec prepend(t(), e :: any()) :: t()
-  def prepend(%__MODULE__{contents: []} = this, e),
-    do: %__MODULE__{this | contents: [e]}
+  @spec prepend(t(any()), e :: any()) :: t(any())
+  def prepend(%FingerTree.Digit{contents: []}, e),
+    do: FingerTree.new!(FingerTree.Digit, [e])
 
-  def prepend(%__MODULE__{contents: [e1]} = this, e),
-    do: %__MODULE__{this | contents: [e, e1]}
+  def prepend(%FingerTree.Digit{contents: [e1]}, e),
+    do: FingerTree.new!(FingerTree.Digit, [e, e1])
 
-  def prepend(%__MODULE__{contents: [e1, e2]} = this, e),
-    do: %__MODULE__{this | contents: [e, e1, e2]}
+  def prepend(%FingerTree.Digit{contents: [e1, e2]}, e),
+    do: FingerTree.new!(FingerTree.Digit, [e, e1, e2])
 
-  def prepend(%__MODULE__{contents: [e1, e2, e3]} = this, e),
-    do: %__MODULE__{this | contents: [e, e1, e2, e3]}
+  def prepend(%FingerTree.Digit{contents: [e1, e2, e3]}, e),
+    do: FingerTree.new!(FingerTree.Digit, [e, e1, e2, e3])
 
   @spec collect(
           t :: FingerTree.Behaviour.finger_tree(any()) | [FingerTree.Behaviour.finger_tree(any())]
-        ) :: t()
+        ) :: t(any())
   def collect(t) when not is_list(t), do: collect([t])
 
   def collect([_ | _] = t) when is_list(t) and length(t) <= 4,
-    do: %FingerTree.Digit{contents: t}
+    do: FingerTree.new!(FingerTree.Digit, t)
 
   unless Application.get_env(:finger_tree, :standard_inspect, true) do
     defimpl Inspect do

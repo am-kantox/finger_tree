@@ -3,6 +3,9 @@ defmodule FingerTree.Single do
 
   use FingerTree
 
+  @impl FingerTree.Measured
+  def measure(%__MODULE__{contents: contents}), do: FingerTree.measure(contents)
+
   @impl FingerTree.Behaviour
   def empty?(%__MODULE__{}), do: false
 
@@ -14,29 +17,27 @@ defmodule FingerTree.Single do
 
   @impl FingerTree.Behaviour
   def push(%__MODULE__{contents: contents}, e),
-    do: %FingerTree.Deep{
-      contents: %{
+    do:
+      FingerTree.new!(FingerTree.Deep, %{
         left: FingerTree.Digit.collect(contents),
         spine: %FingerTree.Empty{},
         right: FingerTree.Digit.collect(e)
-      }
-    }
+      })
 
   @impl FingerTree.Behaviour
   def unshift(%__MODULE__{contents: contents}, e),
-    do: %FingerTree.Deep{
-      contents: %{
+    do:
+      FingerTree.new!(FingerTree.Deep, %{
         left: FingerTree.Digit.collect(e),
         spine: %FingerTree.Empty{},
         right: FingerTree.Digit.collect(contents)
-      }
-    }
+      })
 
   @impl FingerTree.Behaviour
-  def pop(%__MODULE__{}), do: %FingerTree.Empty{}
+  def pop(%__MODULE__{}), do: FingerTree.new!(FingerTree.Empty)
 
   @impl FingerTree.Behaviour
-  def shift(%__MODULE__{}), do: %FingerTree.Empty{}
+  def shift(%__MODULE__{}), do: FingerTree.new!(FingerTree.Empty)
 
   @impl FingerTree.Behaviour
   def append(%__MODULE__{contents: contents}, %type{} = other),

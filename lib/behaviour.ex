@@ -10,15 +10,17 @@ defmodule FingerTree.Behaviour do
   @type finger(type) :: type
   @type finger_tree(type) :: %{
           :__struct__ => finger_tree_type(),
+          measure: any(),
           contents:
             []
-            | FingerTree.Node.t()
+            | FingerTree.Node.t(type)
             | %{
-                left: FingerTree.Digit.t(),
+                left: FingerTree.Digit.t(type),
                 spine: finger_tree(type),
-                right: FingerTree.Digit.t()
+                right: FingerTree.Digit.t(type)
               }
         }
+  @type finger_any(type) :: finger_tree(type) | FingerTree.Node.t(type) | FingerTree.Digit.t(type)
 
   @callback type :: finger(any())
 
@@ -31,4 +33,8 @@ defmodule FingerTree.Behaviour do
   @callback last(this :: finger_tree(any())) :: finger(any())
   @callback append(this :: finger_tree(any()), other :: finger_tree(any())) :: finger_tree(any())
   @callback prepend(this :: finger_tree(any()), other :: finger_tree(any())) :: finger_tree(any())
+end
+
+defmodule FingerTree.Measured do
+  @callback measure(this :: FingerTree.Behaviour.finger_any(any())) :: any()
 end
