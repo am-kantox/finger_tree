@@ -4,18 +4,36 @@ defmodule FingerTree.Deep do
   """
   use FingerTree
 
-  # defmacrop deep do
-  #   quote generated: true do
-  #     %__MODULE__{
-  #       contents:
-  #         %{
-  #           left: %FingerTree.Digit{} = left,
-  #           right: %FingerTree.Digit{} = right,
-  #           spine: spine
-  #         } = contents
-  #     } = this
-  #   end
-  # end
+  defmacrop deep(clauses \\ [:left, :right, :spine]) do
+    clauses =
+      for clause <- clauses do
+        case clause do
+          :spine ->
+            quote do: {unquote(clause), unquote(Macro.var(clause, nil))}
+
+          [clause, contents] ->
+            quote do
+              {unquote(clause),
+               %FingerTree.Digit{contents: unquote(contents)} = unquote(Macro.var(clause, nil))}
+            end
+
+          clause ->
+            quote do: {unquote(clause), %FingerTree.Digit{} = unquote(Macro.var(clause, nil))}
+        end
+      end
+
+    aliases = __MODULE__ |> Module.split() |> Enum.map(&String.to_atom/1)
+
+    {:=, [],
+     [
+       {:%, [],
+        [
+          {:__aliases__, [alias: false], aliases},
+          {:%{}, [], [contents: {:=, [], [{:%{}, [], clauses}, {:contents, [], nil}]}]}
+        ]},
+       {:this, [], nil}
+     ]}
+  end
 
   @impl FingerTree.Behaviour
   def empty?(%__MODULE__{}), do: false
@@ -29,12 +47,7 @@ defmodule FingerTree.Deep do
     do: FingerTree.Digit.first(left)
 
   @impl FingerTree.Behaviour
-  def push(
-        %__MODULE__{
-          contents: %{right: %FingerTree.Digit{} = right, spine: spine} = contents
-        } = this,
-        e
-      ) do
+  def push(deep([:right, :spine]), e) do
     case right.contents do
       [e0, e1, e2, e3] ->
         node = %FingerTree.Node{contents: [e0, e1, e2]}
@@ -54,12 +67,7 @@ defmodule FingerTree.Deep do
   end
 
   @impl FingerTree.Behaviour
-  def unshift(
-        %__MODULE__{
-          contents: %{left: %FingerTree.Digit{} = left, spine: spine} = contents
-        } = this,
-        e
-      ) do
+  def unshift(deep([:left, :spine]), e) do
     case left.contents do
       [e0, e1, e2, e3] ->
         node = %FingerTree.Node{contents: [e1, e2, e3]}
@@ -79,15 +87,11 @@ defmodule FingerTree.Deep do
   end
 
   @impl FingerTree.Behaviour
-  def pop(
-        %__MODULE__{
-          contents: %{right: %FingerTree.Digit{contents: [_, _ | _]} = right} = contents
-        } = this
-      ),
-      do: %FingerTree.Deep{
-        this
-        | contents: %{contents | right: FingerTree.Digit.all_but_last(right)}
-      }
+  def pop(deep([[:right, [_, _ | _]]])),
+    do: %FingerTree.Deep{
+      this
+      | contents: %{contents | right: FingerTree.Digit.all_but_last(right)}
+    }
 
   def pop(%__MODULE__{
         contents: %{left: %FingerTree.Digit{contents: [l]}, spine: %FingerTree.Empty{}}
