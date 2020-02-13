@@ -42,5 +42,8 @@ defmodule FingerTree.Behaviour do
 end
 
 defmodule FingerTree.Measured do
+  @moduledoc """
+  The measured interface to be used for monoids to split / find / random access
+  """
   @callback measure(this :: FingerTree.Behaviour.finger_any(any())) :: any()
 end
