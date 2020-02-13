@@ -205,11 +205,23 @@ defmodule FingerTree.Deep do
     do: FingerTree.append(other, this)
 
   @impl FingerTree.Behaviour
-  def split(%FingerTree.Deep{} = this, splitter) when is_function(splitter, 1) do
-    # if splitter.(measure),
-    #   do: {:ok, FingerTree.new!(FingerTree.Empty), FingerTree.new!(FingerTree.Empty)},
-    #   else: {:error, :not_found}
-    {:error, :not_found}
+  def split(%FingerTree.Deep{measure: measure} = this, splitter, acc)
+      when is_function(splitter, 2) do
+    IO.inspect(this, label: "split")
+
+    if splitter.(measure, acc) do
+      if splitter.(this.contents.left.measure, acc) do
+        {:ok, this.contents.left}
+      else
+        if splitter.(this.contents.right.measure, acc) do
+          {:ok, this.contents.right}
+        else
+          FingerTree.split(this.contents.spine, splitter, acc)
+        end
+      end
+    else
+      {:error, :not_found}
+    end
   end
 
   defp fold(%__MODULE__{} = port, %__MODULE__{} = starboard) do

@@ -143,4 +143,7 @@ defmodule FingerTree do
     instance = %{old | contents: contents}
     %{instance | measure: measure(instance)}
   end
+
+  @impl FingerTree.Behaviour
+  def split(%type{} = tree, splitter, acc \\ []), do: type.split(tree, splitter, acc)
 end

@@ -26,5 +26,5 @@ defmodule FingerTree.Empty do
   end)
 
   @impl FingerTree.Behaviour
-  def split(%FingerTree.Empty{}, _splitter), do: {:error, :empty}
+  def split(%FingerTree.Empty{}, _splitter, _acc), do: {:error, :empty}
 end

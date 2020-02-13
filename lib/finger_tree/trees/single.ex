@@ -48,9 +48,9 @@ defmodule FingerTree.Single do
     do: type.push(other, contents)
 
   @impl FingerTree.Behaviour
-  def split(%FingerTree.Single{measure: measure} = this, splitter)
-      when is_function(splitter, 1) do
-    if splitter.(measure),
+  def split(%FingerTree.Single{measure: measure} = this, splitter, acc)
+      when is_function(splitter, 2) do
+    if splitter.(measure, acc),
       do: {:ok, FingerTree.new!(FingerTree.Empty), this, FingerTree.new!(FingerTree.Empty)},
       else: {:error, :not_found}
   end
